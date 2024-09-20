@@ -4,7 +4,9 @@ import { MessageWindow } from "../components/ui/MessageWindow";
 import { useAuth } from "../context/AuthContext";
 import { useWebSocket } from "../hooks/useWebSocket";
 import apiClient from "../api/apiClient";
-import BuddyList from "../components/ui/BuddyList";
+import { Menu, X } from "lucide-react";
+import Button from "../components/ui/Button";
+import { ScrollArea } from "../components/ui/ScrollArea";
 
 interface Conversation {
   id: string;
@@ -23,7 +25,7 @@ interface Message {
   senderId: string;
   recipientId: string;
   message: string;
-  timestamp: number[]; // Standardized to string
+  timestamp: number[];
 }
 
 export const Chat: React.FC = () => {
@@ -33,8 +35,10 @@ export const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const { user } = useAuth();
   const { isConnected, lastMessage, sendMessage } = useWebSocket(
-    `ws://localhost:8000/chat`
+    "ws://localhost:8000/chat"
   );
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isConversationListOpen, setIsConversationListOpen] = useState(false);
 
   useEffect(() => {
     const fetchConversations = async () => {
@@ -113,8 +117,6 @@ export const Chat: React.FC = () => {
       console.log("New Message: ", newMessage);
 
       setMessages((prevMessages) => [...prevMessages, newMessage]);
-
-      // sendMessage({ messageType: "CHAT_MESSAGE", payload: newMessage });
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -125,21 +127,67 @@ export const Chat: React.FC = () => {
   }
 
   return (
-    <div className="w-full flex h-screen">
-      <div className="max-w-xl border-r overflow-y-auto">
-        <BuddyList />
-        <ConversationList
-          conversations={conversations}
-          onSelectConversation={setSelectedConversation}
-        />
+    <div className="flex h-screen bg-[#F5F5F5] text-[#333333]">
+      {/* Main content area */}
+      <div className="flex-1 flex flex-col lg:flex-row lg:pl-64">
+        {" "}
+        {/* Added padding for sidebar */}
+        {/* Conversation List */}
+        <div
+          className={`${
+            isConversationListOpen ? "block" : "hidden"
+          } lg:block w-full lg:w-64 bg-white border-r border-gray-200 absolute lg:relative z-10 h-full`}
+        >
+          <div className="p-4 flex justify-between items-center lg:hidden">
+            <h2 className="text-xl font-bold">Conversations</h2>
+            <Button onClick={() => setIsConversationListOpen(false)}>
+              <X className="h-6 w-6" />
+            </Button>
+          </div>
+          <ScrollArea className="h-full">
+            <ConversationList
+              conversations={conversations}
+              onSelectConversation={(conversation) => {
+                setSelectedConversation(conversation);
+                setIsConversationListOpen(false);
+              }}
+            />
+          </ScrollArea>
+        </div>
+        {/* Chat Area */}
+        <div className="flex-1 flex flex-col">
+          {/* Chat Header */}
+          <div className="bg-white p-4 shadow flex justify-between items-center">
+            <Button
+              className="lg:hidden"
+              onClick={() => setIsConversationListOpen(true)}
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+            <h2 className="text-xl font-bold">
+              {selectedConversation
+                ? selectedConversation.userIds
+                    .filter((id) => id !== user.id)
+                    .join(", ")
+                : "Select a conversation"}
+            </h2>
+            <div className="w-6" /> {/* Placeholder for alignment */}
+          </div>
+
+          {/* Messages */}
+          {selectedConversation ? (
+            <MessageWindow
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              currentUserId={user.id}
+            />
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-gray-500">
+              Select a conversation to start chatting
+            </div>
+          )}
+        </div>
       </div>
-      {selectedConversation && (
-        <MessageWindow
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          currentUserId={user.id}
-        />
-      )}
     </div>
   );
 };

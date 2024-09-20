@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import apiClient from "../api/apiClient";
+import { Camera, MapPin, Edit2, Grid } from "lucide-react";
+import Input from "../components/ui/Input";
+import Textarea from "../components/ui/Textarea";
 import Button from "../components/ui/Button";
 
 interface Post {
@@ -26,7 +29,9 @@ interface Profile {
   email: string;
   profilePicture?: string;
   about?: string;
-  location?: string;
+  city?: string;
+  state?: string;
+  country?: string;
   dob?: string;
   posts: Post[];
 }
@@ -52,7 +57,6 @@ const UserProfile: React.FC = () => {
         setProfile(response.data);
         setEditedProfile(response.data);
 
-        // Check buddy status
         if (user?.id && userId && user.id !== userId) {
           const buddyResponse = await apiClient.get(
             `/buddies/list?userId=${user.id}`
@@ -144,74 +148,136 @@ const UserProfile: React.FC = () => {
   const isOwnProfile = user?.id === profile.userId;
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
-      <div className="flex-grow p-4 md:p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-            <div className="relative h-48 md:h-64 bg-gradient-to-r from-blue-400 to-purple-500">
+    <div className="max-w-4xl mx-auto p-4">
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="flex flex-col md:flex-row items-center md:items-start mb-6">
+          <div className="relative mb-4 md:mb-0 md:mr-6">
+            <img
+              src={profile.profilePicture || "/api/placeholder/150/150"}
+              alt={profile.fullName}
+              className="w-32 h-32 rounded-full object-cover"
+            />
+            {isEditing && (
+              <label
+                htmlFor="profile-picture"
+                className="absolute bottom-0 right-0 bg-[#B33A3A] text-white p-2 rounded-full cursor-pointer"
+              >
+                <Camera size={20} />
+                <input
+                  id="profile-picture"
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
+            )}
+          </div>
+          <div className="flex-1">
+            {isEditing ? (
+              <div className="space-y-4">
+                <Input
+                  id="fullName"
+                  type="text"
+                  name="fullName"
+                  value={editedProfile?.fullName || ""}
+                  onChange={handleInputChange}
+                  placeholder="Full Name"
+                />
+                <Input
+                  id="username"
+                  type="text"
+                  name="username"
+                  value={editedProfile?.username || ""}
+                  onChange={handleInputChange}
+                  placeholder="Username"
+                />
+                <Textarea
+                  id="about"
+                  label="About"
+                  name="about"
+                  value={editedProfile?.about || ""}
+                  onChange={handleInputChange}
+                  placeholder="Bio"
+                  rows={3}
+                />
+                <div className="flex items-center">
+                  <MapPin
+                    className="mr-2 text-gray-500"
+                    size={20}
+                  />
+                  <Input
+                    id="location"
+                    type="text"
+                    name="location"
+                    value={editedProfile?.city || ""}
+                    onChange={handleInputChange}
+                    placeholder="Location"
+                  />
+                </div>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-2xl font-semibold">{profile.fullName}</h2>
+                <p className="text-gray-500">@{profile.username}</p>
+                <p className="mt-2">{profile.about}</p>
+                <p className="flex items-center mt-2 text-gray-500">
+                  <MapPin
+                    className="mr-2"
+                    size={20}
+                  />
+                  {profile.city}, {profile.state}, {profile.country}
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+        <div className="flex justify-end">
+          {isOwnProfile ? (
+            <Button
+              onClick={handleSubmit}
+              className="px-4 py-2 bg-[#B33A3A] text-white hover:bg-[#9e2a2a] rounded-md transition duration-300"
+            >
+              <div className="flex items-center gap-2">
+                <Edit2 size={16} />
+                {isEditing ? "Save Profile" : "Edit Profile"}
+              </div>
+            </Button>
+          ) : (
+            !isBuddy && (
+              <Button
+                onClick={handleSendBuddyRequest}
+                disabled={buddyRequestSent}
+                className="px-4 py-2 bg-[#B33A3A] text-white hover:bg-[#9e2a2a] rounded-md transition duration-300"
+              >
+                {buddyRequestSent ? "Request Sent" : "Send Buddy Request"}
+              </Button>
+            )
+          )}
+        </div>
+      </div>
+
+      {/* Posts Section */}
+      <div>
+        <h3 className="text-xl font-semibold mb-4 flex items-center">
+          <Grid
+            className="mr-2"
+            size={24}
+          />
+          Posts
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {profile.posts.map((post) => (
+            <div
+              key={post.id}
+              className="relative aspect-square"
+            >
               <img
-                src={profile.profilePicture || "/api/placeholder/150/150"}
-                alt={profile.fullName}
-                className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white object-cover shadow-lg"
+                src={post.imageUrl}
+                alt={post.description}
+                className="w-full h-full object-cover rounded-lg"
               />
             </div>
-            <div className="pt-20 md:pt-24 p-6">
-              {isEditing ? (
-                <form
-                  onSubmit={handleSubmit}
-                  className="space-y-4"
-                >
-                  {/* Input fields for profile editing */}
-                </form>
-              ) : (
-                <>
-                  <h1 className="text-3xl font-bold mb-2">
-                    {profile.fullName}
-                  </h1>
-                  <p className="text-gray-600 mb-4">@{profile.username}</p>
-                  <p className="mb-6 text-gray-700">{profile.about}</p>
-
-                  {/* Buddy Request Button */}
-                  {!isOwnProfile && !isBuddy && (
-                    <Button
-                      onClick={handleSendBuddyRequest}
-                      disabled={buddyRequestSent}
-                    >
-                      {buddyRequestSent ? "Request Sent" : "Send Buddy Request"}
-                    </Button>
-                  )}
-
-                  {/* Display Posts */}
-                  <div className="mt-8">
-                    <h2 className="text-2xl font-semibold mb-4">Posts</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {profile.posts.map((post) => (
-                        <div
-                          key={post.id}
-                          className="bg-white rounded-lg shadow-lg overflow-hidden"
-                        >
-                          <img
-                            src={post.imageUrl}
-                            alt={post.description}
-                            className="w-full h-48 object-cover"
-                          />
-                          <div className="p-4">
-                            <h3 className="font-bold">{post.location}</h3>
-                            <p>{post.description}</p>
-                            <p className="text-sm text-gray-500">
-                              Likes: {post.likesCount}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Post Modal */}
+          ))}
         </div>
       </div>
     </div>

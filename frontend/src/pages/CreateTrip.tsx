@@ -6,7 +6,7 @@ import apiClient from "../api/apiClient";
 import Input from "../components/ui/Input";
 import Textarea from "../components/ui/Textarea";
 import Button from "../components/ui/Button";
-import Sidebar from "../components/ui/Sidebar";
+import Sidebar from "../components/ui/sidebar/Sidebar";
 
 const CreateTrip: React.FC = () => {
   const { user } = useAuth();

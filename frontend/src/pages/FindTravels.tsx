@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import apiClient from "../api/apiClient";
-import Sidebar from "../components/ui/Sidebar";
+import Sidebar from "../components/ui/sidebar/Sidebar";
 import TripCard from "../components/ui/TripCard";
 
 interface Trip {

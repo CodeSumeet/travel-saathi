@@ -75,6 +75,10 @@ public class UserMapper {
         profileDTO.setUsername(user.getUsername());
         profileDTO.setFullName(user.getFullName());
         profileDTO.setProfilePicture(user.getProfilePicture());
+        profileDTO.setAbout(user.getAbout());
+        profileDTO.setCity(user.getCity());
+        profileDTO.setState(user.getState());
+        profileDTO.setCountry(user.getCountry());
         profileDTO.setPosts(posts.stream().map(this::mapPostToDTO).collect(Collectors.toList()));
         return profileDTO;
     }

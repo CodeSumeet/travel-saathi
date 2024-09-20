@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import apiClient from "../api/apiClient";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
-import Sidebar from "../components/ui/Sidebar";
+import Sidebar from "../components/ui/sidebar/Sidebar";
 
 interface UserProfile {
   name: string;
