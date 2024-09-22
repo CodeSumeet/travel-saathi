@@ -48,6 +48,8 @@ public class UserServiceImpl implements UserService {
             user.setContactNumber(userDTO.getContactNumber());
             user.setEmail(userDTO.getEmail());
             user.setCity(userDTO.getCity());
+            user.setState(userDTO.getState());
+            user.setCountry(userDTO.getCountry());
             user.setGender(Gender.valueOf(userDTO.getGender().toUpperCase()));
             user.setAbout(userDTO.getAbout());
 

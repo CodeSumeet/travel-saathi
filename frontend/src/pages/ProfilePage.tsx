@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import apiClient from "../api/apiClient";
-import { Camera, MapPin, Edit2, Grid } from "lucide-react";
+import { Camera, MapPin, Edit2, Grid, Users } from "lucide-react";
 import Input from "../components/ui/Input";
 import Textarea from "../components/ui/Textarea";
 import Button from "../components/ui/Button";
@@ -23,7 +23,7 @@ interface Post {
 }
 
 interface Profile {
-  userId: string; // Updated from id to userId
+  userId: string;
   fullName: string;
   username: string;
   email: string;
@@ -34,6 +34,7 @@ interface Profile {
   country?: string;
   dob?: string;
   posts: Post[];
+  buddyCount: number; // added buddy count
 }
 
 const UserProfile: React.FC = () => {
@@ -148,14 +149,16 @@ const UserProfile: React.FC = () => {
   const isOwnProfile = user?.id === profile.userId;
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="max-w-4xl mx-auto p-4 pb-20 md:pb-8">
+      {" "}
+      {/* Added bottom padding */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex flex-col md:flex-row items-center md:items-start mb-6">
           <div className="relative mb-4 md:mb-0 md:mr-6">
             <img
               src={profile.profilePicture || "/api/placeholder/150/150"}
               alt={profile.fullName}
-              className="w-32 h-32 rounded-full object-cover"
+              className="w-24 h-24 md:w-40 md:h-40 rounded-full object-cover border-4 border-gray-200"
             />
             {isEditing && (
               <label
@@ -216,10 +219,10 @@ const UserProfile: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <>
+              <div>
                 <h2 className="text-2xl font-semibold">{profile.fullName}</h2>
                 <p className="text-gray-500">@{profile.username}</p>
-                <p className="mt-2">{profile.about}</p>
+                <p className="mt-2 text-gray-600">{profile.about}</p>
                 <p className="flex items-center mt-2 text-gray-500">
                   <MapPin
                     className="mr-2"
@@ -227,8 +230,17 @@ const UserProfile: React.FC = () => {
                   />
                   {profile.city}, {profile.state}, {profile.country}
                 </p>
-              </>
+              </div>
             )}
+          </div>
+          <div className="mt-4 md:mt-0 md:ml-6">
+            <p className="flex items-center text-gray-500">
+              <Users
+                className="mr-2"
+                size={20}
+              />
+              {profile.buddyCount}24 Buddies
+            </p>
           </div>
         </div>
         <div className="flex justify-end">
@@ -255,30 +267,68 @@ const UserProfile: React.FC = () => {
           )}
         </div>
       </div>
-
       {/* Posts Section */}
       <div>
-        <h3 className="text-xl font-semibold mb-4 flex items-center">
+        <h3
+          className="text-xl font-semibold mb-4 flex items-center
+        "
+        >
           <Grid
             className="mr-2"
-            size={24}
+            size={20}
           />
           Posts
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {profile.posts.map((post) => (
-            <div
-              key={post.id}
-              className="relative aspect-square"
-            >
-              <img
-                src={post.imageUrl}
-                alt={post.description}
-                className="w-full h-full object-cover rounded-lg"
-              />
-            </div>
-          ))}
-        </div>
+        {profile.posts.length === 0 ? (
+          <p className="text-gray-500">No posts yet</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {profile.posts.map((post) => (
+              <div
+                key={post.id}
+                className="bg-white rounded-lg shadow-md overflow-hidden"
+              >
+                <img
+                  src={post.imageUrl}
+                  alt={post.description}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-4">
+                  <p className="text-sm text-gray-500">
+                    <MapPin
+                      className="inline-block mr-1"
+                      size={16}
+                    />
+                    {post.location || "Unknown Location"}
+                  </p>
+                  <p className="mt-2 text-gray-700">{post.description}</p>
+                  <div className="flex items-center justify-between mt-4">
+                    <p className="text-sm text-gray-500">
+                      {new Date(post.createdAt).toLocaleDateString()}
+                    </p>
+                    <div className="flex items-center text-gray-500">
+                      <span className="mr-1">{post.likesCount}</span>
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 15l7-7 7 7"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

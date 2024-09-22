@@ -20,7 +20,6 @@ import CompleteProfile from "./pages/auth/CompleteProfile";
 import ShareExperience from "./pages/ShareExperience";
 import CreateTrip from "./pages/CreateTrip";
 import ProfilePage from "./pages/ProfilePage";
-import EditProfilePage from "./pages/EditProfilePage";
 import FindTravelsPage from "./pages/FindTravels";
 import NotificationsPage from "./pages/NotificationPage";
 import { Chat } from "./pages/Chat";
@@ -103,10 +102,6 @@ function App() {
             <Route
               path="/profile/:userId"
               element={<ProfilePage />}
-            />
-            <Route
-              path="/edit-profile"
-              element={<EditProfilePage />}
             />
             <Route
               path="/notifications"

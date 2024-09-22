@@ -1,17 +1,23 @@
-import { FC, useState } from "react";
+import { FC, useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import debounce from "lodash/debounce";
+
+interface Location {
+  city: string;
+  state: string;
+  country: string;
+}
 
 interface DropdownProps {
   label: string;
-  options: string[];
   value: string;
   icon: JSX.Element;
-  onChange: (value: string) => void;
+  onChange: (location: Location) => void;
   placeholder: string;
 }
 
 const Dropdown: FC<DropdownProps> = ({
   label,
-  options,
   value,
   icon,
   onChange,
@@ -19,16 +25,79 @@ const Dropdown: FC<DropdownProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>(value);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Filter options based on search term
-  const filteredOptions = options.filter((option) =>
-    option.toLowerCase().includes(searchTerm.toLowerCase())
+  const fetchLocations = useCallback(
+    debounce(async (searchTerm: string) => {
+      if (searchTerm.length < 3) {
+        setLocations([]);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const response = await axios.get(
+          `https://nominatim.openstreetmap.org/search`,
+          {
+            params: {
+              q: searchTerm,
+              format: "json",
+              addressdetails: 1,
+              limit: 5,
+            },
+          }
+        );
+
+        const filteredLocations = response.data
+          .map((item: any) => ({
+            city:
+              item.address.city ||
+              item.address.town ||
+              item.address.village ||
+              item.name,
+            state: item.address.state || item.address.state_district || "",
+            country: item.address.country || "",
+          }))
+          .filter(
+            (location: Location) =>
+              location.city && location.state && location.country
+          );
+
+        setLocations(filteredLocations);
+      } catch (error) {
+        console.error("Failed to fetch locations:", error);
+        setLocations([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 300),
+    []
   );
 
-  const handleOptionClick = (option: string) => {
-    setSearchTerm(option);
-    onChange(option);
+  useEffect(() => {
+    if (searchTerm) {
+      fetchLocations(searchTerm);
+    } else {
+      setLocations([]);
+    }
+  }, [searchTerm, fetchLocations]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setSearchTerm(newValue);
+    setIsOpen(true);
+  };
+
+  const handleOptionClick = (location: Location) => {
+    const fullLocation = formatLocation(location);
+    setSearchTerm(fullLocation);
+    onChange(location);
     setIsOpen(false);
+  };
+
+  const formatLocation = (location: Location) => {
+    return `${location.city}, ${location.state}, ${location.country}`;
   };
 
   return (
@@ -40,11 +109,8 @@ const Dropdown: FC<DropdownProps> = ({
             type="text"
             placeholder={placeholder}
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setIsOpen(true); // Open dropdown on typing
-            }}
-            onFocus={() => setIsOpen(true)} // Keep dropdown open on focus
+            onChange={handleInputChange}
+            onFocus={() => setIsOpen(true)}
             className="w-full px-3 py-2 bg-light border border-grey rounded-md placeholder:text-grey text-sm sm:text-base md:text-sm lg:text-base focus:outline-none focus:ring-1"
           />
           <figure className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-grey">
@@ -52,21 +118,23 @@ const Dropdown: FC<DropdownProps> = ({
           </figure>
         </div>
         {isOpen && (
-          <ul className="absolute w-full mt-1 bg-white border border-grey rounded-md shadow-lg z-10">
-            {filteredOptions.length > 0 ? (
-              filteredOptions.map((option) => (
+          <ul className="absolute w-full mt-1 bg-white border border-grey rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+            {isLoading ? (
+              <li className="px-3 py-2 text-grey">Loading...</li>
+            ) : locations.length > 0 ? (
+              locations.map((location, index) => (
                 <li
-                  key={option}
-                  onMouseDown={() => handleOptionClick(option)}
+                  key={index}
+                  onMouseDown={() => handleOptionClick(location)}
                   className={`px-3 py-2 cursor-pointer hover:bg-light-grey ${
-                    value === option ? "bg-light-grey" : ""
+                    value === formatLocation(location) ? "bg-light-grey" : ""
                   }`}
                 >
-                  {option}
+                  {formatLocation(location)}
                 </li>
               ))
             ) : (
-              <li className="px-3 py-2 text-grey">No options found</li>
+              <li className="px-3 py-2 text-grey">No locations found</li>
             )}
           </ul>
         )}

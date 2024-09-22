@@ -1,7 +1,6 @@
 package dev.codesumeet.travelSaathi.service.impl;
 
 import dev.codesumeet.travelSaathi.config.ChatWebSocketHandler;
-import dev.codesumeet.travelSaathi.config.NotificationAndChatWebSocketHandler;
 import dev.codesumeet.travelSaathi.dto.ChatMessageDTO;
 import dev.codesumeet.travelSaathi.entity.ChatMessage;
 import dev.codesumeet.travelSaathi.entity.Conversation;
@@ -14,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -24,7 +21,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatMessageService {
 
-//    private final NotificationAndChatWebSocketHandler webSocketHandler;
     private final ChatWebSocketHandler webSocketHandler;
     private final ChatMessageRepository chatMessageRepository;
     private final ConversationRepository conversationRepository;
@@ -48,7 +44,6 @@ public class ChatServiceImpl implements ChatMessageService {
 
         chatMessage = chatMessageRepository.save(chatMessage);
 
-        // Manual conversion to DTO
         ChatMessageDTO savedMessageDTO = convertToDTO(chatMessage);
 
         webSocketHandler.sendChatMessage(recipient.getId(), savedMessageDTO);
@@ -71,7 +66,6 @@ public class ChatServiceImpl implements ChatMessageService {
                 });
     }
 
-    // Manual conversion method
     private ChatMessageDTO convertToDTO(ChatMessage chatMessage) {
         ChatMessageDTO dto = new ChatMessageDTO();
         dto.setId(chatMessage.getId());

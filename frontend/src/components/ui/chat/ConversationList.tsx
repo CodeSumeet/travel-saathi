@@ -1,6 +1,5 @@
-// src/components/ui/ConversationList.tsx
 import React from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 
 interface Conversation {
   id: string;
@@ -27,7 +26,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Conversations</h2>
+      <h2 className="text-xl font-bold mb-4">Chats</h2>
       <div className="space-y-4">
         {conversations.map((conversation) => (
           <div

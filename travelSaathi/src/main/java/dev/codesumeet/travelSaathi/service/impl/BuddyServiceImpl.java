@@ -1,12 +1,12 @@
 package dev.codesumeet.travelSaathi.service.impl;
 
+import dev.codesumeet.travelSaathi.dto.BuddyUserDTO;
 import dev.codesumeet.travelSaathi.entity.Buddy;
 import dev.codesumeet.travelSaathi.entity.User;
 import dev.codesumeet.travelSaathi.repository.BuddyRepository;
 import dev.codesumeet.travelSaathi.repository.UserRepository;
 import dev.codesumeet.travelSaathi.service.BuddyService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,10 +22,7 @@ public class BuddyServiceImpl implements BuddyService {
 
     @Override
     public Buddy sendBuddyRequest(UUID senderId, UUID recipientId) {
-        User sender = userRepository.findById(senderId)
-                .orElseThrow(() -> new RuntimeException("Sender not found"));
-        User recipient = userRepository.findById(recipientId)
-                .orElseThrow(() -> new RuntimeException("Recipient not found"));
+        validateUsersExist(senderId, recipientId);
 
         Buddy buddy = new Buddy();
         buddy.setUserId1(senderId);
@@ -47,5 +44,24 @@ public class BuddyServiceImpl implements BuddyService {
     @Override
     public List<Buddy> getUserBuddies(UUID userId) {
         return buddyRepository.findByUserId1OrUserId2AndAccepted(userId, userId, true);
+    }
+
+    @Override
+    public BuddyUserDTO getUserDTO(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return BuddyUserDTO.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .username(user.getUsername())
+                .profilePicture(user.getProfilePicture())
+                .build();
+    }
+
+    private void validateUsersExist(UUID... userIds) {
+        for (UUID userId : userIds) {
+            userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+        }
     }
 }

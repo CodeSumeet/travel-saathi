@@ -1,4 +1,4 @@
-import { FC, useEffect, useState, useCallback } from "react";
+import { FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
@@ -10,8 +10,12 @@ import Dropdown from "../../components/ui/DropDown";
 import Textarea from "../../components/ui/Textarea";
 import { MapPin } from "lucide-react";
 import apiClient from "../../api/apiClient";
-import axios from "axios";
-import debounce from "lodash/debounce";
+
+interface Location {
+  city: string;
+  state: string;
+  country: string;
+}
 
 const CompleteProfile: FC = () => {
   const { user, login } = useAuth();
@@ -24,49 +28,13 @@ const CompleteProfile: FC = () => {
     user?.contactNumber || ""
   );
   const [email, setEmail] = useState<string>(user?.email || "");
-  const [location, setLocation] = useState<string>(user?.city || "");
+  const [location, setLocation] = useState<Location>({
+    city: user?.city || "",
+    state: user?.state || "",
+    country: user?.country || "",
+  });
   const [gender, setGender] = useState<string>(user?.gender || "");
   const [about, setAbout] = useState<string>(user?.about || "");
-
-  const [searchCity, setSearchCity] = useState<string>(user?.city || "");
-  const [cities, setCities] = useState<string[]>([]);
-
-  const fetchCities = useCallback(
-    debounce(async (searchTerm) => {
-      try {
-        console.log("Fetching cities for:", searchTerm); // Debug log
-        const response = await axios.get(
-          `https://api.countrystatecity.in/v1/countries/IN/cities`,
-          {
-            headers: {
-              "X-CSCAPI-KEY":
-                "U3JDM2RaaG9YSG56RzZFblJLZVFLcERJdWVXNXhmN2QzQUpoelpQcA==",
-            },
-            params: { search: searchTerm },
-          }
-        );
-
-        const filteredCities = response.data
-          .map((city: any) => city.name)
-          .filter((city: any) =>
-            city.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-        console.log("Filtered Cities:", filteredCities); // Debug log
-        setCities(filteredCities);
-      } catch (error) {
-        console.error("Failed to fetch cities:", error);
-      }
-    }, 300),
-    []
-  );
-
-  useEffect(() => {
-    if (searchCity) {
-      fetchCities(searchCity);
-    } else {
-      setCities([]);
-    }
-  }, [searchCity, fetchCities]);
 
   const handleProfilePictureChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -76,31 +44,36 @@ const CompleteProfile: FC = () => {
     }
   };
 
+  const handleLocationChange = (newLocation: Location) => {
+    console.log("New location:", newLocation);
+    setLocation(newLocation);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      // Create userDTO object to be sent as a JSON string
       const userDTO = {
         fullName,
         username,
         contactNumber,
         email,
-        city: location,
+        city: location.city,
+        state: location.state,
+        country: location.country,
         gender,
         about,
       };
 
       const formData = new FormData();
-      formData.append("user", JSON.stringify(userDTO)); // Add JSON string for user
+      formData.append("user", JSON.stringify(userDTO));
       if (profilePicture) {
-        formData.append("profilePicture", profilePicture); // Add profile picture if available
+        formData.append("profilePicture", profilePicture);
       }
 
-      // Send the form data with Axios
       const response = await apiClient.put(`/users/${user?.id}`, formData, {
         headers: {
-          "Content-Type": "multipart/form-data", // Ensure the request is sent as multipart
+          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -196,14 +169,10 @@ const CompleteProfile: FC = () => {
 
           <Dropdown
             label="I am based out of"
-            placeholder="Home location"
-            options={cities}
-            value={location}
+            placeholder="Home city"
+            value={`${location.city}, ${location.state}, ${location.country}`}
             icon={<MapPin />}
-            onChange={(value) => {
-              setLocation(value);
-              setSearchCity(value);
-            }}
+            onChange={handleLocationChange}
           />
 
           <div className="flex flex-col gap-2">

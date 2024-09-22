@@ -17,6 +17,8 @@ type AuthState = {
     gender: string;
     contactNumber: string;
     city: string;
+    state: string;
+    country: string;
     dob: string;
     about: string;
   } | null;
@@ -33,6 +35,8 @@ type AuthState = {
       gender: string;
       contactNumber: string;
       city: string;
+      state: string;
+      country: string;
       dob: string;
       about: string;
     },
@@ -72,6 +76,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       gender: string;
       contactNumber: string;
       city: string;
+      state: string;
+      country: string;
       dob: string;
       about: string;
     },

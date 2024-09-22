@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { format } from "date-fns";
 import { Send } from "lucide-react";
-import Input from "./Input";
-import Button from "./Button";
-import { ScrollArea } from "./ScrollArea";
-import Textarea from "./Textarea";
+import { ScrollArea } from "../ScrollArea";
+import Textarea from "../Textarea";
+import Button from "../Button";
 
 interface Message {
   id: string;
@@ -87,14 +86,6 @@ export const MessageWindow: React.FC<MessageWindowProps> = ({
       </ScrollArea>
       <div className="bg-white p-4 border-t border-gray-200">
         <div className="flex gap-4">
-          {/* <Input
-            id="message"
-            name="message"
-            type="text"
-            placeholder="Type your message..."
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-          /> */}
           <div className="flex-grow">
             <Textarea
               id="message"

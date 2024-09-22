@@ -1,10 +1,10 @@
 import { FC } from "react";
 import { NavLink } from "react-router-dom";
-import { Home, BookOpen, Users, Plus } from "lucide-react"; // Icons for links
+import { Home, Users, Plus } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 
 const BottomBar: FC = () => {
-  const { user } = useAuth(); // Assuming user is available in the context
+  const { user } = useAuth();
 
   return (
     <div className="lg:hidden flex justify-around items-center py-4 bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 z-10 h-16">

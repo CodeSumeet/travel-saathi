@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { ConversationList } from "../components/ui/ConversationList";
-import { MessageWindow } from "../components/ui/MessageWindow";
 import { useAuth } from "../context/AuthContext";
 import { useWebSocket } from "../hooks/useWebSocket";
 import apiClient from "../api/apiClient";
 import { Menu, X } from "lucide-react";
 import Button from "../components/ui/Button";
 import { ScrollArea } from "../components/ui/ScrollArea";
+import { ConversationList } from "../components/ui/chat/ConversationList";
+import { MessageWindow } from "../components/ui/chat/MessageWindow";
 
 interface Conversation {
   id: string;
@@ -34,10 +34,7 @@ export const Chat: React.FC = () => {
     useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const { user } = useAuth();
-  const { isConnected, lastMessage, sendMessage } = useWebSocket(
-    "ws://localhost:8000/chat"
-  );
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { lastMessage } = useWebSocket("ws://localhost:8000/chat");
   const [isConversationListOpen, setIsConversationListOpen] = useState(false);
 
   useEffect(() => {
@@ -128,11 +125,7 @@ export const Chat: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-[#F5F5F5] text-[#333333]">
-      {/* Main content area */}
-      <div className="flex-1 flex flex-col lg:flex-row lg:pl-64">
-        {" "}
-        {/* Added padding for sidebar */}
-        {/* Conversation List */}
+      <div className="flex-1 flex flex-col lg:flex-row lg:pl-60">
         <div
           className={`${
             isConversationListOpen ? "block" : "hidden"
@@ -154,9 +147,7 @@ export const Chat: React.FC = () => {
             />
           </ScrollArea>
         </div>
-        {/* Chat Area */}
         <div className="flex-1 flex flex-col">
-          {/* Chat Header */}
           <div className="bg-white p-4 shadow flex justify-between items-center">
             <Button
               className="lg:hidden"
@@ -171,10 +162,9 @@ export const Chat: React.FC = () => {
                     .join(", ")
                 : "Select a conversation"}
             </h2>
-            <div className="w-6" /> {/* Placeholder for alignment */}
+            <div className="w-6" />
           </div>
 
-          {/* Messages */}
           {selectedConversation ? (
             <MessageWindow
               messages={messages}
