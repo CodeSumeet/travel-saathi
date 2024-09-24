@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import apiClient from "../api/apiClient";
 import Sidebar from "../components/ui/sidebar/Sidebar";
@@ -8,8 +8,8 @@ interface Trip {
   id: string;
   userId: string;
   destination: string;
-  startTime: string;
-  endTime: string;
+  startTime: number[];
+  endTime: number[];
   description: string;
   username: string;
   fullName: string;
@@ -23,21 +23,23 @@ const FindTravelsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchTrips = async () => {
-      try {
-        const response = await apiClient.get("/trips/all-trips");
-        setTrips(response.data);
-      } catch (err) {
-        setError("Failed to load trips. Please try again later.");
-        console.error("Error fetching trips:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTrips();
+  const fetchTrips = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await apiClient.get("/trips/all-trips");
+      setTrips(response.data);
+    } catch (err) {
+      setError("Failed to load trips. Please try again later.");
+      console.error("Error fetching trips:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchTrips();
+  }, [fetchTrips]);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -45,7 +47,7 @@ const FindTravelsPage: React.FC = () => {
       <div className="flex-1 overflow-auto">
         <main className="container mx-auto px-4 py-8">
           <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center">
-            Find Travel Buddies
+            Find Your Next Travel
           </h1>
           {loading ? (
             <p className="text-center">Loading trips...</p>
@@ -58,7 +60,7 @@ const FindTravelsPage: React.FC = () => {
               {trips.map((trip) => (
                 <div
                   key={trip.id}
-                  className="w-full max-w-md"
+                  className="w-full max-w-lg"
                 >
                   <TripCard
                     trip={trip}

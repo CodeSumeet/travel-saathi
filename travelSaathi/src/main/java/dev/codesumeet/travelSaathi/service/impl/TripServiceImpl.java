@@ -91,7 +91,7 @@ public class TripServiceImpl implements TripService {
         // Create a new connection request
         ConnectionRequest connectionRequest = new ConnectionRequest();
         connectionRequest.setTripId(tripId);
-        connectionRequest.setTripOwnerId(trip.getId());
+        connectionRequest.setTripOwnerId(trip.getUser().getId());
         connectionRequest.setInterestedUserId(interestedUserId);
         connectionRequest.setStatus(ConnectionRequestStatus.PENDING);
         connectionRequest.setCreatedAt(LocalDateTime.now());

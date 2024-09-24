@@ -56,6 +56,8 @@ public class TripController {
     public ResponseEntity<Map<String, Object>> expressInterestInTrip(
             @PathVariable UUID tripId,
             @RequestParam UUID userId) {
+        System.out.println("Trip ID: " + tripId);
+        System.out.println("User ID: " + userId);
         tripService.expressInterestInTrip(tripId, userId);
         return ResponseEntity.ok(Map.of("message", "Interest expressed successfully"));
     }
