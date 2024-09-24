@@ -12,6 +12,7 @@ public class PostDTO {
     private String description;
     private String imageUrl;
     private Integer likesCount;
+    private Integer commentsCount; // Add commentsCount here
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

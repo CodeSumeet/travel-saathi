@@ -69,31 +69,37 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ProfileDTO getUserProfile(UUID userId) {
-        // Fetch the user by ID
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
-        // Fetch posts by this user
         List<Post> posts = postRepository.findByUser(user);
 
-        // Map user and posts to ProfileDTO using UserMapper
-        return userMapper.mapUserToProfileDTO(user, posts);
+        // Calculate the number of buddies
+        int buddiesCount = user.getBuddiesAsUser1().size() + user.getBuddiesAsUser2().size();
+
+        // Map user and posts to ProfileDTO
+        ProfileDTO profileDTO = userMapper.mapUserToProfileDTO(user, posts);
+        profileDTO.setBuddiesCount(buddiesCount);
+
+        return profileDTO;
     }
 
     @Override
     public ProfileDTO getLoggedInUserProfile() {
-        // Fetch the current logged-in user's information
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = userDetails.getUsername();
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
 
-        // Fetch the posts created by the logged-in user
         List<Post> posts = postRepository.findByUser(user);
 
-        // Map user and posts to ProfileDTO using UserMapper
-        return userMapper.mapUserToProfileDTO(user, posts);
+        int buddiesCount = user.getBuddiesAsUser1().size() + user.getBuddiesAsUser2().size();
+
+        ProfileDTO profileDTO = userMapper.mapUserToProfileDTO(user, posts);
+        profileDTO.setBuddiesCount(buddiesCount);
+
+        return profileDTO;
     }
 
 }

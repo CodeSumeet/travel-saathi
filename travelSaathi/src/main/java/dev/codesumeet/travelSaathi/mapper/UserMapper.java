@@ -80,8 +80,14 @@ public class UserMapper {
         profileDTO.setState(user.getState());
         profileDTO.setCountry(user.getCountry());
         profileDTO.setPosts(posts.stream().map(this::mapPostToDTO).collect(Collectors.toList()));
+
+        // Set buddies count
+        int buddiesCount = user.getBuddiesAsUser1().size() + user.getBuddiesAsUser2().size();
+        profileDTO.setBuddiesCount(buddiesCount);
+
         return profileDTO;
     }
+
 
     // Map a Post entity to PostDTO
     public PostDTO mapPostToDTO(Post post) {
@@ -91,6 +97,7 @@ public class UserMapper {
         postDTO.setDescription(post.getDescription());
         postDTO.setImageUrl(post.getImageUrl());
         postDTO.setLikesCount(post.getLikesCount());
+        postDTO.setCommentsCount(post.getCommentsCount());
         postDTO.setCreatedAt(post.getCreatedAt());
         postDTO.setUpdatedAt(post.getUpdatedAt());
         postDTO.setUserId(post.getUser().getId().toString());

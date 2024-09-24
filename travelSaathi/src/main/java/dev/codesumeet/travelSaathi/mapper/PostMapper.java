@@ -14,6 +14,7 @@ public class PostMapper {
         postDTO.setDescription(post.getDescription());
         postDTO.setImageUrl(post.getImageUrl());
         postDTO.setLikesCount(post.getLikesCount());
+        postDTO.setCommentsCount(post.getCommentsCount());
         postDTO.setCreatedAt(post.getCreatedAt());
         postDTO.setUpdatedAt(post.getUpdatedAt());
 

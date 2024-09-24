@@ -35,7 +35,7 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<PostLike> likes = new HashSet<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Comment> comments = new HashSet<>();
 
     @CreationTimestamp
@@ -61,4 +61,5 @@ public class Post {
     public int getLikesCount() {
         return likes.size();
     }
+    public int getCommentsCount() {return comments.size();}
 }

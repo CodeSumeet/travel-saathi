@@ -23,6 +23,7 @@ import ProfilePage from "./pages/ProfilePage";
 import FindTravelsPage from "./pages/FindTravels";
 import NotificationsPage from "./pages/NotificationPage";
 import { Chat } from "./pages/Chat";
+import EditProfile from "./pages/EditProfile";
 
 function App() {
   return (
@@ -103,6 +104,10 @@ function App() {
               path="/profile/:userId"
               element={<ProfilePage />}
             />
+            {/* <Route
+              path="/profile/edit"
+              element={<EditProfile />}
+            /> */}
             <Route
               path="/notifications"
               element={<NotificationsPage />}

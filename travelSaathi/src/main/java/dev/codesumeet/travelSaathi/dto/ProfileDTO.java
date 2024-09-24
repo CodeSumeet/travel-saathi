@@ -13,5 +13,6 @@ public class ProfileDTO {
     private String city;
     private String state;
     private String country;
-    private List<PostDTO> posts;  // Assuming you want to show the user's posts on their profile
+    private List<PostDTO> posts;  // User's posts
+    private int buddiesCount;      // Number of buddies the user has
 }
