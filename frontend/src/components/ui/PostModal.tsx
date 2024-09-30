@@ -13,8 +13,8 @@ interface CommentDTO {
   username: string;
   fullName: string;
   profilePicture: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: number[]; // Changed to number[]
+  updatedAt: number[];
 }
 
 interface PostModalProps {
@@ -39,8 +39,6 @@ const PostModal: React.FC<PostModalProps> = ({
   const [newComment, setNewComment] = useState<string>("");
 
   useEffect(() => {
-    console.log("user", user);
-
     const fetchComments = async () => {
       try {
         const response = await apiClient.get(`/comments/${postId}`);
@@ -57,8 +55,8 @@ const PostModal: React.FC<PostModalProps> = ({
     try {
       const response = await apiClient.post(
         `/comments/${postId}/add-comment`,
-        null, // No body required
-        { params: { userId: user?.id, comment: newComment } } // Send data as request params
+        null,
+        { params: { userId: user?.id, comment: newComment } }
       );
       setComments([...comments, response.data]);
       setNewComment("");
@@ -67,24 +65,48 @@ const PostModal: React.FC<PostModalProps> = ({
     }
   };
 
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatTimeAgo = (dateArray: number[]) => {
+    // Ensure the dateArray has the correct length
+    if (dateArray.length < 7) {
+      console.error("Invalid date array length:", dateArray);
+      return "Invalid date";
+    }
+
+    // Create a Date object from the array
+    const date = new Date(
+      dateArray[0], // Year
+      dateArray[1] - 1, // Month (0-indexed)
+      dateArray[2], // Day
+      dateArray[3], // Hour
+      dateArray[4], // Minute
+      dateArray[5], // Second
+      dateArray[6] / 1e6 // Milliseconds (convert nanoseconds to milliseconds)
+    );
+
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      console.error("Invalid date format:", dateArray);
+      return "Invalid date";
+    }
+
     const now = new Date();
     const diff = now.getTime() - date.getTime();
+
+    // Convert milliseconds to minutes, hours, days
     const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
 
     if (days > 0) return `${days}d ago`;
     if (hours > 0) return `${hours}h ago`;
     if (minutes > 0) return `${minutes}m ago`;
+
     return "Just now";
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white w-full max-w-6xl h-[700px] rounded-lg flex flex-col md:flex-row overflow-hidden">
-        {/* Left: Post Image */}
         <div className="w-full md:w-2/3 h-full relative">
           <img
             src={postImage}
@@ -93,9 +115,7 @@ const PostModal: React.FC<PostModalProps> = ({
           />
         </div>
 
-        {/* Right: Comments Section */}
         <div className="w-full md:w-1/3 lg:w-1/2 flex flex-col py-4 px-2 h-full">
-          {/* Header */}
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center">
               <img
@@ -116,7 +136,6 @@ const PostModal: React.FC<PostModalProps> = ({
             </button>
           </div>
 
-          {/* Comments Section */}
           <div className="flex-1 overflow-y-auto mb-4">
             {comments.map((comment) => (
               <div
@@ -135,14 +154,14 @@ const PostModal: React.FC<PostModalProps> = ({
                   </div>
                   <div className="text-xs text-gray-400 flex items-center ml-2">
                     <Clock className="h-3 w-3 mr-1" />
-                    {formatTimeAgo(comment.createdAt)}
+                    {formatTimeAgo(comment.createdAt)}{" "}
+                    {/* Pass the array directly */}
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Add Comment */}
           <div className="relative flex items-center gap-2">
             <div className="flex-grow">
               <Input
