@@ -1,5 +1,6 @@
 package dev.codesumeet.travelSaathi.controller;
 
+import dev.codesumeet.travelSaathi.dto.ConversationDTO;
 import dev.codesumeet.travelSaathi.entity.Conversation;
 import dev.codesumeet.travelSaathi.service.ConversationService;
 import dev.codesumeet.travelSaathi.service.UserService;
@@ -18,14 +19,12 @@ import java.util.UUID;
 public class ConversationController {
 
     private final ConversationService conversationService;
-    private final UserService userService;
 
     @PostMapping("/start")
     public ResponseEntity<Conversation> startConversation(
             @RequestParam UUID userId1,
             @RequestParam UUID userId2
     ) {
-        // Create or fetch conversation
         Conversation conversation = conversationService.createConversation(userId1, userId2);
         return ResponseEntity.ok(conversation);
     }
@@ -40,8 +39,8 @@ public class ConversationController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Conversation>> getUserConversations(@PathVariable UUID userId) {
-        List<Conversation> conversations = conversationService.getConversationsByUser(userId);
+    public ResponseEntity<List<ConversationDTO>> getUserConversations(@PathVariable UUID userId) {
+        List<ConversationDTO> conversations = conversationService.getConversationsByUser(userId);
         return ResponseEntity.ok(conversations);
     }
 }

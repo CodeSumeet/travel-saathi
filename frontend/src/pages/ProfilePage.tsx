@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import apiClient from "../api/apiClient";
 import { Camera, MapPin, Users, Heart, MessageCircle } from "lucide-react";
@@ -40,6 +40,7 @@ interface Profile {
 
 const UserProfile: React.FC = () => {
   const { userId } = useParams<{ userId?: string }>();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [buddyRequestSent, setBuddyRequestSent] = useState<boolean>(false);
@@ -93,6 +94,29 @@ const UserProfile: React.FC = () => {
       setBuddyRequestSent(true);
     } catch (error) {
       console.error("Error sending buddy request:", error);
+    }
+  };
+
+  const handleMessageClick = async () => {
+    if (!user?.id || !profile?.userId) return;
+
+    try {
+      console.log(user.id, "-", profile.userId);
+
+      // Send a request to start the conversation
+      const response = await apiClient.post("/conversations/start", null, {
+        params: {
+          userId1: user.id,
+          userId2: profile.userId,
+        },
+      });
+
+      // Log the conversation details or handle navigation
+      console.log("Conversation started:", response.data);
+      // Navigate to the conversation view or chat page if needed
+      // e.g., history.push(`/chat/${response.data.id}`);
+    } catch (error) {
+      console.error("Error starting conversation:", error);
     }
   };
 
@@ -167,27 +191,37 @@ const UserProfile: React.FC = () => {
             >
               Edit Profile
             </Button>
-          ) : isBuddy ? (
-            <Button
-              disabled
-              className="px-4 py-2 bg-gray-400 text-white rounded-md"
-            >
-              Buddies
-            </Button>
-          ) : buddyRequestSent ? (
-            <Button
-              disabled
-              className="px-4 py-2 bg-gray-400 text-white rounded-md"
-            >
-              Request Sent
-            </Button>
           ) : (
-            <Button
-              onClick={handleSendBuddyRequest}
-              className="px-4 py-2 bg-[#3AB34A] text-white hover:bg-[#33a343] rounded-md transition duration-300"
-            >
-              Add Buddy
-            </Button>
+            <>
+              <Button
+                onClick={handleMessageClick}
+                className="px-4 py-2 bg-[#007bff] text-white hover:bg-[#0056b3] rounded-md transition duration-300 mr-2"
+              >
+                Message
+              </Button>
+              {isBuddy ? (
+                <Button
+                  disabled
+                  className="px-4 py-2 bg-gray-400 text-white rounded-md"
+                >
+                  Buddies
+                </Button>
+              ) : buddyRequestSent ? (
+                <Button
+                  disabled
+                  className="px-4 py-2 bg-gray-400 text-white rounded-md"
+                >
+                  Request Sent
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleSendBuddyRequest}
+                  className="px-4 py-2 bg-[#3AB34A] text-white hover:bg-[#33a343] rounded-md transition duration-300"
+                >
+                  Add Buddy
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -244,19 +278,18 @@ const UserProfile: React.FC = () => {
           postId={selectedPost.id}
           postImage={selectedPost.imageUrl}
           profilePicture={selectedPost.profilePicture}
+          location={selectedPost?.location || ""}
           fullName={selectedPost.username}
-          location={selectedPost.location ?? ""}
-          closeModal={() => setSelectedPost(null)}
+          closeModal={closeModal}
         />
       )}
 
-      {/* Edit Profile Modal */}
-      {isEditModalOpen && profile && (
+      {isEditModalOpen && (
         <EditProfileModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
           profile={profile}
-          onProfileUpdate={(updatedProfile) => setProfile(updatedProfile)}
+          isOpen={isEditModalOpen}
+          onProfileUpdate={() => {}}
+          onClose={() => setIsEditModalOpen(false)}
         />
       )}
     </div>

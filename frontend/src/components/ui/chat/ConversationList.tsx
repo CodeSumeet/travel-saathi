@@ -1,9 +1,16 @@
 import React from "react";
 import { useAuth } from "../../../context/AuthContext";
 
+interface User {
+  id: string;
+  fullName: string;
+  username: string;
+  profilePicture: string;
+}
+
 interface Conversation {
   id: string;
-  userIds: string[];
+  users: User[];
   lastMessage?: {
     id: string;
     senderId: string;
@@ -34,10 +41,21 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             className="flex items-center p-4 border-b rounded-lg cursor-pointer hover:bg-gray-100 transition"
             onClick={() => onSelectConversation(conversation)}
           >
-            <div className="flex-1">
+            <div className="flex-shrink-0">
+              <img
+                src={
+                  conversation.users.find((u) => u.id !== user?.id)
+                    ?.profilePicture || ""
+                }
+                alt="User Avatar"
+                className="h-10 w-10 rounded-full"
+              />
+            </div>
+            <div className="flex-1 ml-4">
               <div className="font-semibold">
-                {conversation.userIds
-                  .filter((id) => id !== user?.id)
+                {conversation.users
+                  .filter((u) => u.id !== user?.id)
+                  .map((u) => u.fullName)
                   .join(", ")}
               </div>
               {conversation.lastMessage && (

@@ -25,33 +25,27 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> updateUser(
             @PathVariable String id,
-            @RequestPart("user") String userDTOJson,  // Capture the JSON string
+            @RequestPart("user") String userDTOJson,
             @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) throws IOException {
 
-        // Convert JSON string to UserDTO object
         ObjectMapper objectMapper = new ObjectMapper();
         UserDTO userDTO = objectMapper.readValue(userDTOJson, UserDTO.class);
 
-        // Call the service to update the user
         log.info("Controller: {}", userDTO);
         UserDTO updatedUser = userService.updateUser(id, userDTO, profilePicture);
 
-        // Return the response
         return ResponseEntity.ok(Map.of("user", updatedUser));
     }
 
-    // Get the profile for a specific user (publicly visible)
     @GetMapping("/{userId}/profile")
     public ResponseEntity<ProfileDTO> getUserProfile(@PathVariable UUID userId) {
         ProfileDTO profile = userService.getUserProfile(userId);
         return ResponseEntity.ok(profile);
     }
 
-    // Get the profile for the currently logged-in user
     @GetMapping("/me/profile")
     public ResponseEntity<ProfileDTO> getMyProfile() {
         ProfileDTO profile = userService.getLoggedInUserProfile();
         return ResponseEntity.ok(profile);
     }
-
 }

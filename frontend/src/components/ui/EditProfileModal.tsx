@@ -4,7 +4,6 @@ import Input from "./Input"; // Import the new Input component
 import apiClient from "../../api/apiClient";
 import { MapPin } from "lucide-react"; // Example icon for the dropdown
 import Dropdown from "./DropDown";
-import FileUpload from "./FileUpload"; // Import the FileUpload component
 import Textarea from "./Textarea"; // Import the Textarea component
 
 interface Post {

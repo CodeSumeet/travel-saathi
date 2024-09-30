@@ -36,11 +36,11 @@ public class ChatController {
         return ResponseEntity.ok(messages.stream().map(this::convertToDTO).collect(Collectors.toList()));
     }
 
-    @GetMapping("/conversations/user/{userId}")
-    public ResponseEntity<List<ConversationDTO>> getUserConversations(@PathVariable UUID userId) {
-        List<Conversation> conversations = conversationService.getConversationsByUser(userId);
-        return ResponseEntity.ok(conversations.stream().map(this::convertToDTO).collect(Collectors.toList()));
-    }
+//    @GetMapping("/conversations/user/{userId}")
+//    public ResponseEntity<List<ConversationDTO>> getUserConversations(@PathVariable UUID userId) {
+//        List<Conversation> conversations = conversationService.getConversationsByUser(userId);
+//        return ResponseEntity.ok(conversations.stream().map(this::convertToDTO).collect(Collectors.toList()));
+//    }
 
     private ChatMessageDTO convertToDTO(ChatMessage chatMessage) {
         return new ChatMessageDTO(
@@ -55,7 +55,7 @@ public class ChatController {
     private ConversationDTO convertToDTO(Conversation conversation) {
         ConversationDTO dto = new ConversationDTO();
         dto.setId(conversation.getId());
-        dto.setUserIds(conversation.getUserIds());
+//        dto.setUsers(conversation.getUserIds());
         conversation.getMessages().stream()
                 .max((m1, m2) -> m1.getTimestamp().compareTo(m2.getTimestamp()))
                 .ifPresent(lastMessage -> dto.setLastMessage(convertToDTO(lastMessage)));

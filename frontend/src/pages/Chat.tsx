@@ -8,9 +8,16 @@ import { ScrollArea } from "../components/ui/ScrollArea";
 import { ConversationList } from "../components/ui/chat/ConversationList";
 import { MessageWindow } from "../components/ui/chat/MessageWindow";
 
+interface User {
+  id: string;
+  fullName: string;
+  username: string;
+  profilePicture: string;
+}
+
 interface Conversation {
   id: string;
-  userIds: string[];
+  users: User[];
   lastMessage?: {
     id: string;
     senderId: string;
@@ -99,9 +106,9 @@ export const Chat: React.FC = () => {
   const handleSendMessage = async (message: string) => {
     if (!selectedConversation || !user?.id) return;
 
-    const recipientId = selectedConversation.userIds.find(
-      (id) => id !== user.id
-    );
+    const recipientId = selectedConversation.users.find(
+      (u) => u.id !== user.id
+    )?.id;
     if (!recipientId) return;
 
     try {
@@ -111,7 +118,6 @@ export const Chat: React.FC = () => {
         message,
       });
       const newMessage = response.data;
-      console.log("New Message: ", newMessage);
 
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     } catch (error) {
@@ -157,8 +163,9 @@ export const Chat: React.FC = () => {
             </Button>
             <h2 className="text-xl font-bold">
               {selectedConversation
-                ? selectedConversation.userIds
-                    .filter((id) => id !== user.id)
+                ? selectedConversation.users
+                    .filter((u) => u.id !== user.id)
+                    .map((u) => u.fullName)
                     .join(", ")
                 : "Select a conversation"}
             </h2>
