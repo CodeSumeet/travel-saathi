@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Getter
@@ -22,6 +23,7 @@ public class Notification {
     private UUID recipientId; // Who receives the notification
     private UUID postId; // Related post ID, if applicable
     private String message; // Custom message
+    private String profilePicture; // Field for profile picture
 
     @Enumerated(EnumType.STRING)
     private NotificationType type; // LIKE, COMMENT, etc.
@@ -29,5 +31,8 @@ public class Notification {
     private Boolean isRead;
     private LocalDateTime createdAt;
 
-    // Additional fields if necessary (e.g., tripId for trip-related notifications)
+    // Method to return createdAt as an ISO 8601 string
+    public String getCreatedAtAsString() {
+        return createdAt.format(DateTimeFormatter.ISO_DATE_TIME);
+    }
 }

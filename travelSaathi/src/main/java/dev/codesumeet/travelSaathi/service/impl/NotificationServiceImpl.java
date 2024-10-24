@@ -26,11 +26,17 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-//    private final NotificationAndChatWebSocketHandler webSocketHandler;
     private final NotificationWebSocketHandler webSocketHandler;
 
     @Override
     public void createLikeNotification(UUID postId, UUID likerId) {
+        // Fetch the user who liked the post
+        var user = userRepository.findById(likerId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        String username = user.getUsername();
+        String profilePicture = user.getProfilePicture(); // Fetch profile picture URL
+
         Notification notification = new Notification();
         notification.setType(NotificationType.LIKE);
         notification.setPostId(postId);
@@ -39,9 +45,11 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found"))
                 .getUser().getId());
 
-        notification.setMessage("User liked your post");
+        // Use the username in the notification message
+        notification.setMessage(username + " liked your post");
         notification.setCreatedAt(LocalDateTime.now());
         notification.setIsRead(false);
+        notification.setProfilePicture(profilePicture); // Set the profile picture in the notification
 
         notificationRepository.save(notification);
 
@@ -51,6 +59,13 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void createCommentNotification(UUID postId, UUID commenterId) {
+        // Fetch the user who commented on the post
+        var user = userRepository.findById(commenterId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        String username = user.getUsername();
+        String profilePicture = user.getProfilePicture(); // Fetch profile picture URL
+
         Notification notification = new Notification();
         notification.setType(NotificationType.COMMENT);
         notification.setPostId(postId);
@@ -59,15 +74,19 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found"))
                 .getUser().getId());
 
-        notification.setMessage("User commented on your post");
+        // Use the username in the notification message
+        notification.setMessage(username + " commented on your post");
         notification.setCreatedAt(LocalDateTime.now());
         notification.setIsRead(false);
+        notification.setProfilePicture(profilePicture); // Set the profile picture in the notification
 
         notificationRepository.save(notification);
 
         NotificationDTO notificationDTO = convertToDTO(notification);
         sendNotification(notificationDTO);
     }
+
+
 
     private void sendNotification(NotificationDTO notificationDTO) {
         System.out.println("recipient id: " + notificationDTO.getRecipientId());
@@ -98,8 +117,13 @@ public class NotificationServiceImpl implements NotificationService {
         dto.setPostId(notification.getPostId());
         dto.setMessage(notification.getMessage());
         dto.setType(notification.getType());
-//        dto.setCreatedAt(notification.getCreatedAt());
+        dto.setProfilePicture(notification.getProfilePicture());
         dto.setIsRead(notification.getIsRead());
+
+        // Use the new method to get the createdAt as a formatted string
+        dto.setCreatedAt(notification.getCreatedAtAsString());
         return dto;
     }
+
+
 }
