@@ -44,8 +44,11 @@ public class ChatServiceImpl implements ChatMessageService {
 
         chatMessage = chatMessageRepository.save(chatMessage);
 
-        ChatMessageDTO savedMessageDTO = convertToDTO(chatMessage);
+        // Update the last message in the conversation
+        conversation.setLastMessage(chatMessage);
+        conversationRepository.save(conversation); // Save the updated conversation
 
+        ChatMessageDTO savedMessageDTO = convertToDTO(chatMessage);
         webSocketHandler.sendChatMessage(recipient.getId(), savedMessageDTO);
 
         return chatMessage;
@@ -64,6 +67,18 @@ public class ChatServiceImpl implements ChatMessageService {
                     newConversation.setUserIds(userIds);
                     return conversationRepository.save(newConversation);
                 });
+    }
+
+    @Override
+    public Optional<ChatMessage> markMessageAsRead(UUID messageId) {
+        Optional<ChatMessage> chatMessageOpt = chatMessageRepository.findById(messageId);
+        if (chatMessageOpt.isPresent()) {
+            ChatMessage chatMessage = chatMessageOpt.get();
+            chatMessage.setRead(true); // Assuming you've added setIsRead in the entity
+            chatMessageRepository.save(chatMessage);
+            return Optional.of(chatMessage);
+        }
+        return Optional.empty();
     }
 
     private ChatMessageDTO convertToDTO(ChatMessage chatMessage) {

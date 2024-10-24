@@ -1,5 +1,6 @@
 import React from "react";
 import { useAuth } from "../../../context/AuthContext";
+import { format } from "date-fns"; // Import date-fns for formatting timestamps
 
 interface User {
   id: string;
@@ -16,7 +17,7 @@ interface Conversation {
     senderId: string;
     recipientId: string;
     message: string;
-    timestamp: number[];
+    timestamp: number[]; // [year, month, day, hour, minute, second, nanosecond]
   };
 }
 
@@ -30,6 +31,13 @@ export const ConversationList: React.FC<ConversationListProps> = ({
   onSelectConversation,
 }) => {
   const { user } = useAuth();
+
+  // Helper function to format the timestamp
+  const formatTimestamp = (timestamp: number[]): string => {
+    const [year, month, day, hour, minute] = timestamp;
+    const date = new Date(year, month - 1, day, hour, minute);
+    return format(date, "h:mm a"); // Format as "hh:mm a"
+  };
 
   return (
     <div className="p-4">
@@ -59,8 +67,11 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                   .join(", ")}
               </div>
               {conversation.lastMessage && (
-                <div className="text-sm text-gray-500 mt-1">
-                  {conversation.lastMessage.message}
+                <div className="flex justify-between items-center text-sm text-gray-500 mt-1">
+                  <div>{conversation.lastMessage.message}</div>
+                  <div className="ml-2">
+                    {formatTimestamp(conversation.lastMessage.timestamp)}
+                  </div>
                 </div>
               )}
             </div>

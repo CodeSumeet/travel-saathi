@@ -9,7 +9,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
     return (
       <div
         ref={ref}
-        className={`overflow-auto ${className}`}
+        className={`h-full overflow-y-auto ${className}`} // Added height and overflow styles
         {...props}
       >
         {children}

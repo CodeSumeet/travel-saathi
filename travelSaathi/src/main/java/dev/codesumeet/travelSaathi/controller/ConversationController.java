@@ -3,9 +3,7 @@ package dev.codesumeet.travelSaathi.controller;
 import dev.codesumeet.travelSaathi.dto.ConversationDTO;
 import dev.codesumeet.travelSaathi.entity.Conversation;
 import dev.codesumeet.travelSaathi.service.ConversationService;
-import dev.codesumeet.travelSaathi.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

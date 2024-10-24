@@ -21,6 +21,7 @@ public class Conversation {
     @Column(name = "user_id")
     private Set<UUID> userIds;
 
-    @OneToMany(mappedBy = "conversation", fetch = FetchType.EAGER)
-    private Set<ChatMessage> messages;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "last_message_id")
+    private ChatMessage lastMessage; // Add this line to hold the last message
 }

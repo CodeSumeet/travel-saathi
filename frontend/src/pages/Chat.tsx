@@ -175,7 +175,7 @@ export const Chat: React.FC = () => {
           {selectedConversation ? (
             <MessageWindow
               messages={messages}
-              onSendMessage={handleSendMessage}
+              onSendMessage={(message) => handleSendMessage(message.message)}
               currentUserId={user.id}
             />
           ) : (

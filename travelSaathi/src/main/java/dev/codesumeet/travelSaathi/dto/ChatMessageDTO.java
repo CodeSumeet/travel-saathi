@@ -18,5 +18,6 @@ public class ChatMessageDTO {
     private UUID senderId;
     private UUID recipientId;
     private String message;
+    private boolean isRead;
     private LocalDateTime timestamp;
 }

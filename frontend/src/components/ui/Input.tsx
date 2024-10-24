@@ -1,19 +1,22 @@
 import { FC, InputHTMLAttributes, ReactNode, useState } from "react";
-import { Eye, EyeOff } from "lucide-react"; // Importing Smile icon for emoji button
+import { Eye, EyeOff, Smile } from "lucide-react"; // Import Smile icon for emoji button
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react"; // Import emoji picker
 
-interface InputProps {
+interface InputProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "onChange"> {
   name: string;
   id: string;
   label?: string;
   placeholder?: string;
-  value: InputHTMLAttributes<HTMLInputElement>["value"];
+  value: string; // Ensures the value is a string type
   type: InputHTMLAttributes<HTMLInputElement>["type"];
-  onChange: InputHTMLAttributes<HTMLInputElement>["onChange"];
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; // Strict onChange typing
   showPassword?: boolean;
   togglePasswordVisibility?: () => void;
   disabled?: boolean;
   icon?: ReactNode; // Optional icon prop
+  enableEmoji?: boolean; // Optional emoji picker toggle
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void; // Optional keydown event for "Enter" press
 }
 
 const Input: FC<InputProps> = ({
@@ -27,14 +30,16 @@ const Input: FC<InputProps> = ({
   showPassword,
   togglePasswordVisibility,
   disabled = false,
-  icon, // Destructure the icon prop
+  icon,
+  enableEmoji = false, // New prop to control emoji picker
+  onKeyDown, // Optional keydown event for handling Enter key
 }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
 
   const handleEmojiClick = (emojiData: EmojiClickData) => {
     // Append the selected emoji to the input value
     const newValue = value + emojiData.emoji;
-    onChange!({
+    onChange({
       target: { value: newValue },
     } as React.ChangeEvent<HTMLInputElement>);
     setShowEmojiPicker(false); // Close the emoji picker after selection
@@ -51,14 +56,14 @@ const Input: FC<InputProps> = ({
         </label>
       )}
       <div className="relative flex items-center">
-        {icon && (
+        {enableEmoji && (
           <button
             type="button"
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             className="absolute left-2 flex items-center"
             style={{ background: "transparent", border: "none" }}
           >
-            {icon}
+            <Smile className="text-grey" />
           </button>
         )}
         <input
@@ -68,12 +73,13 @@ const Input: FC<InputProps> = ({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          onKeyDown={onKeyDown} // Handle keydown for 'Enter' key
           disabled={disabled}
           className={`w-full px-3 py-2 bg-light border border-grey rounded-md placeholder:text-grey text-sm sm:text-base md:text-sm lg:text-base focus:outline-none focus:ring-1 ${
             disabled
               ? "bg-gray-200 border-gray-300 text-gray-500 opacity-75 cursor-not-allowed"
               : ""
-          } ${icon ? "pl-10" : "pl-3"}`} // Adjust padding based on icon presence
+          } ${enableEmoji ? "pl-10" : "pl-3"}`} // Adjust padding based on emoji picker presence
         />
         {name === "password" && togglePasswordVisibility && !disabled && (
           <button

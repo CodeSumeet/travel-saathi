@@ -115,6 +115,7 @@ const UserProfile: React.FC = () => {
       console.log("Conversation started:", response.data);
       // Navigate to the conversation view or chat page if needed
       // e.g., history.push(`/chat/${response.data.id}`);
+      navigate("/chat");
     } catch (error) {
       console.error("Error starting conversation:", error);
     }

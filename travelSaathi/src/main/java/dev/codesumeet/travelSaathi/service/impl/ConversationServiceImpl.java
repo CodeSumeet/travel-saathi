@@ -53,12 +53,7 @@ public class ConversationServiceImpl implements ConversationService {
                     // Convert userIds to UserProfileDTO for each participant
                     List<UserProfileDTO> participants = convertUserIdsToProfiles(conversation.getUserIds());
                     dto.setUsers(participants);
-
-                    // Optionally, set the last message of the conversation (if needed)
-                    conversation.getMessages().stream()
-                            .max(Comparator.comparing(ChatMessage::getTimestamp))  // Get the most recent message by timestamp
-                            .ifPresent(lastMessage -> dto.setLastMessage(convertToDTO(lastMessage)));  // Convert to DTO
-
+                    dto.setLastMessage(convertToDTO(conversation.getLastMessage()));
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -85,13 +80,17 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     private ChatMessageDTO convertToDTO(ChatMessage chatMessage) {
+        if (chatMessage == null) {
+            return null; // or throw new IllegalArgumentException("ChatMessage cannot be null");
+        }
+
         return new ChatMessageDTO(
                 chatMessage.getId(),
                 chatMessage.getSender().getId(),
-                chatMessage.getConversation().getId(),
+                chatMessage.getRecipient() != null ? chatMessage.getRecipient().getId() : null,
                 chatMessage.getMessage(),
+                chatMessage.isRead(),
                 chatMessage.getTimestamp()
         );
     }
-
 }

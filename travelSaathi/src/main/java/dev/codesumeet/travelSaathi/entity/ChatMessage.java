@@ -30,5 +30,7 @@ public class ChatMessage {
 
     private String message;
 
+    private boolean isRead = false;
+
     private LocalDateTime timestamp;
 }

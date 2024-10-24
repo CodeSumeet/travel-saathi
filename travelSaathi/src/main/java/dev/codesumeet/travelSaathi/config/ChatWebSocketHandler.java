@@ -62,7 +62,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     public void sendChatMessage(UUID recipientId, ChatMessageDTO chatMessageDTO) {
         try {
             WebSocketSession session = userSessions.get(recipientId);
+            System.out.println(userSessions);
+            System.out.println("Sending message " + userSessions.get(recipientId));
             if (session != null && session.isOpen()) {
+                System.out.println("Sending message " + userSessions.get(recipientId));
                 String message = objectMapper.writeValueAsString(chatMessageDTO);
                 session.sendMessage(new TextMessage(message));
             } else {
