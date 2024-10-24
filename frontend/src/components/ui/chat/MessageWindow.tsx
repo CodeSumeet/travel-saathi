@@ -13,9 +13,10 @@ interface Message {
   timestamp: number[];
 }
 
+// In MessageWindow:
 interface MessageWindowProps {
   messages: Message[];
-  onSendMessage: (message: Message) => Promise<void>;
+  onSendMessage: (message: { message: string }) => Promise<void>; // Change this line
   currentUserId: string;
 }
 
@@ -36,28 +37,17 @@ export const MessageWindow: React.FC<MessageWindowProps> = ({
 
   useEffect(() => {
     scrollToBottom(); // Scroll to bottom on mount and when messages change
+    console.log("MessageWindow received messages:", messages);
   }, [messages]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (newMessage.trim()) {
-      const messagePayload: Message = {
-        id: Date.now().toString(),
-        senderId: currentUserId,
-        recipientId: "", // Set this appropriately in your main chat logic
-        message: newMessage,
-        timestamp: [
-          new Date().getFullYear(),
-          new Date().getMonth() + 1,
-          new Date().getDate(),
-          new Date().getHours(),
-          new Date().getMinutes(),
-          new Date().getSeconds(),
-          0,
-        ],
-      };
-
-      onSendMessage(messagePayload); // Send the message payload
-      setNewMessage(""); // Clear input after sending
+      try {
+        await onSendMessage({ message: newMessage.trim() }); // Change this line
+        setNewMessage("");
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     }
   };
 

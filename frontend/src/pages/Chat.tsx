@@ -135,7 +135,7 @@ export const Chat: React.FC = () => {
         <div
           className={`${
             isConversationListOpen ? "block" : "hidden"
-          } lg:block w-full lg:w-64 bg-white border-r border-gray-200 absolute lg:relative z-10 h-full`}
+          } lg:block w-full lg:w-80 bg-white border-r border-gray-200 absolute lg:relative z-10 h-full`}
         >
           <div className="p-4 flex justify-between items-center lg:hidden">
             <h2 className="text-xl font-bold">Conversations</h2>
